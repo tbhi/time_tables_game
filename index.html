@@ -96,29 +96,23 @@ let timeLeft = 6
 let answered = false
 
 const answerBox = document.getElementById("answer")
-
-/* Create timetable checkboxes */
-
-const tablesDiv = document.getElementById("tables")
-
-for(let i=1;i<=12;i++){
-
-    let label = document.createElement("label")
-    label.className = "table-option"
-
-    label.innerHTML =
-        `<input type="checkbox" value="${i}" checked> ${i}`
-
-    tablesDiv.appendChild(label)
-}
-
-/* Enter key submit */
-
-answerBox.addEventListener("keydown",function(e){
+answerBox.addEventListener("keydown", function(e){
     if(e.key==="Enter"){
         submitAnswer()
     }
 })
+
+createCheckboxes()
+
+function createCheckboxes() {
+    const tablesDiv = document.getElementById("tables")
+    for(let i=1;i<=12;i++){
+        const label = document.createElement("label")
+        label.className = "table-option"
+        label.innerHTML = `<input type="checkbox" value="${i}" checked> ${i}`
+        tablesDiv.appendChild(label)
+    }
+}
 
 function getSelectedTables(){
 
@@ -186,60 +180,45 @@ function nextQuestion(){
 }
 
 function startTimer(){
-
     document.getElementById("timer").textContent="Time: "+timeLeft
-
     countdown=setInterval(()=>{
-
         timeLeft--
-
         document.getElementById("timer").textContent="Time: "+timeLeft
-
         if(timeLeft<=0){
             clearInterval(countdown)
             submitAnswer()
         }
-
     },1000)
 }
 
 function submitAnswer(){
-
     if(answered) return
     answered=true
 
     clearInterval(countdown)
 
-    let ans=Number(answerBox.value)
+    let answer=Number(answerBox.value)
     let result=document.getElementById("result")
 
-    if(ans===correctAnswer){
-
+    if (answer===correctAnswer) {
         score++
         result.textContent="✓ Correct!"
         result.className="correct"
-
-    }else{
-
-        result.textContent="✗ Wrong! Answer: "+correctAnswer
+    } else {
+        result.textContent=`✗ Answer: ${correctAnswer}`
         result.className="wrong"
     }
 
     answerBox.disabled=true
-
     setTimeout(nextQuestion,3000)
 }
 
 function endGame(){
-
     document.getElementById("question").textContent="Game Finished!"
     document.getElementById("timer").textContent=""
-
     document.getElementById("result").textContent=
         "Final Score: "+score+" / "+totalQuestions
-
     document.getElementById("result").className=""
-
     document.getElementById("info").textContent=""
 }
 
