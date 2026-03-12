@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Times Tables Game</title>
+
+<style>
+body{
+    font-family:Arial;
+    text-align:center;
+    margin-top:60px;
+    background:#f4f4f4;
+}
+
+#question{
+    font-size:48px;
+    margin-bottom:10px;
+}
+
+#timer{
+    font-size:32px;
+    margin-bottom:15px;
+}
+
+#answer{
+    font-size:28px;
+    width:120px;
+    text-align:center;
+    padding:8px;
+}
+
+#result{
+    font-size:30px;
+    margin-top:15px;
+    height:40px;
+}
+
+.correct{color:green;}
+.wrong{color:red;}
+
+#info{
+    margin-top:15px;
+    font-size:20px;
+}
+
+#tables{
+    margin:20px auto;
+    width:420px;
+}
+
+.table-option{
+    display:inline-block;
+    width:60px;
+    margin:4px;
+}
+
+button{
+    font-size:18px;
+    padding:10px 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Times Tables Challenge</h1>
+
+<h3>Select Timetables</h3>
+
+<div id="tables"></div>
+
+<br>
+
+<div id="question">Press Start</div>
+<div id="timer"></div>
+
+<input id="answer" type="number" disabled>
+
+<div id="result"></div>
+<div id="info"></div>
+
+<br>
+<button onclick="startGame()">Start Game</button>
+
+<script>
+
+let totalQuestions = 25
+let current = 0
+let score = 0
+let correctAnswer = 0
+
+let selectedTables = []
+
+let countdown
+let timeLeft = 6
+let answered = false
+
+const answerBox = document.getElementById("answer")
+
+/* Create timetable checkboxes */
+
+const tablesDiv = document.getElementById("tables")
+
+for(let i=1;i<=12;i++){
+
+    let label = document.createElement("label")
+    label.className = "table-option"
+
+    label.innerHTML =
+        `<input type="checkbox" value="${i}" checked> ${i}`
+
+    tablesDiv.appendChild(label)
+}
+
+/* Enter key submit */
+
+answerBox.addEventListener("keydown",function(e){
+    if(e.key==="Enter"){
+        submitAnswer()
+    }
+})
+
+function getSelectedTables(){
+
+    selectedTables=[]
+
+    document.querySelectorAll("#tables input:checked")
+        .forEach(cb=>{
+            selectedTables.push(Number(cb.value))
+        })
+
+    return selectedTables.length>0
+}
+
+function randomQuestion(){
+
+    let table =
+        selectedTables[Math.floor(Math.random()*selectedTables.length)]
+
+    let multiplier = Math.floor(Math.random()*12)+1
+
+    correctAnswer = table * multiplier
+
+    document.getElementById("question").textContent =
+        table + " × " + multiplier
+}
+
+function startGame(){
+
+    if(!getSelectedTables()){
+        alert("Select at least one timetable")
+        return
+    }
+
+    current=0
+    score=0
+
+    document.getElementById("result").textContent=""
+
+    nextQuestion()
+}
+
+function nextQuestion(){
+
+    if(current>=totalQuestions){
+        endGame()
+        return
+    }
+
+    current++
+    answered=false
+    timeLeft=6
+
+    answerBox.disabled=false
+    answerBox.value=""
+    answerBox.focus()
+
+    document.getElementById("result").textContent=""
+
+    randomQuestion()
+
+    document.getElementById("info").textContent=
+        "Question "+current+" / "+totalQuestions
+
+    startTimer()
+}
+
+function startTimer(){
+
+    document.getElementById("timer").textContent="Time: "+timeLeft
+
+    countdown=setInterval(()=>{
+
+        timeLeft--
+
+        document.getElementById("timer").textContent="Time: "+timeLeft
+
+        if(timeLeft<=0){
+            clearInterval(countdown)
+            submitAnswer()
+        }
+
+    },1000)
+}
+
+function submitAnswer(){
+
+    if(answered) return
+    answered=true
+
+    clearInterval(countdown)
+
+    let ans=Number(answerBox.value)
+    let result=document.getElementById("result")
+
+    if(ans===correctAnswer){
+
+        score++
+        result.textContent="✓ Correct!"
+        result.className="correct"
+
+    }else{
+
+        result.textContent="✗ Wrong! Answer: "+correctAnswer
+        result.className="wrong"
+    }
+
+    answerBox.disabled=true
+
+    setTimeout(nextQuestion,3000)
+}
+
+function endGame(){
+
+    document.getElementById("question").textContent="Game Finished!"
+    document.getElementById("timer").textContent=""
+
+    document.getElementById("result").textContent=
+        "Final Score: "+score+" / "+totalQuestions
+
+    document.getElementById("result").className=""
+
+    document.getElementById("info").textContent=""
+}
+
+</script>
+
+</body>
+</html>
+
